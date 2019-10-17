@@ -378,7 +378,7 @@
 
         rteLostFocus: function () {
             if (this.hasFocus) {
-                this.cleanUp(true, false);
+                this.cleanUp(false, false);
             }
         },
 
