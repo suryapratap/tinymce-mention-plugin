@@ -293,39 +293,38 @@ const getMetadata = () => {
     };
 }
 
-function registerPlugin() {
-    (window as any).tinymce.PluginManager.add(PLUGIN_NAME, function (editor: Editor) {
-        console.log("register mention plugin");
+const registerPlugin = (editor: Editor) => {
+    console.log("register mention plugin");
 
-        let autoComplete: AutoComplete | undefined;
-        const autoCompleteData = editor.getParam(PLUGIN_NAME) as AutoCompleteOptions;
+    let autoComplete: AutoComplete | undefined;
+    const autoCompleteData = editor.getParam(PLUGIN_NAME) as AutoCompleteOptions;
 
 
-        autoCompleteData.delimiter = autoCompleteData.delimiter
-            ? Array.isArray(autoCompleteData.delimiter)
-                ? autoCompleteData.delimiter
-                : [autoCompleteData.delimiter]
-            : ['@'];
+    autoCompleteData.delimiter = autoCompleteData.delimiter
+        ? Array.isArray(autoCompleteData.delimiter)
+            ? autoCompleteData.delimiter
+            : [autoCompleteData.delimiter]
+        : ['@'];
 
-        function prevCharIsSpace() {
-            const range = editor.selection.getRng();
-            const start = range.startOffset;
-            const text = ((range.startContainer as HTMLElement)?.dataset) || '';
-            return !text.toString().charAt(start - 1).trim().length;
+    function prevCharIsSpace() {
+        const range = editor.selection.getRng();
+        const start = range.startOffset;
+        const text = ((range.startContainer as HTMLElement)?.dataset) || '';
+        return !text.toString().charAt(start - 1).trim().length;
+    }
+
+    console.log("register keypress for mention plugin");
+    editor.on('keypress', (event: KeyboardEvent) => {
+        if (!!autoCompleteData?.delimiter?.includes(event.key) && prevCharIsSpace() && (!autoComplete || !autoComplete?.hasFocus)) {
+            event.preventDefault();
+            autoComplete = new AutoComplete(editor, { delimiter: event.key, ...autoCompleteData });
         }
-
-        console.log("register keypress for mention plugin");
-        editor.on('keypress', (event: KeyboardEvent) => {
-            if (!!autoCompleteData?.delimiter?.includes(event.key) && prevCharIsSpace() && (!autoComplete || !autoComplete?.hasFocus)) {
-                event.preventDefault();
-                autoComplete = new AutoComplete(editor, { delimiter: event.key, ...autoCompleteData });
-            }
-        });
-
-        return { getMetadata }
-
     });
+
+    return { getMetadata }
 }
-const mention = registerPlugin()
-export { mention }
+
+(window as any).tinymce.PluginManager.add(PLUGIN_NAME, registerPlugin);
+
+
 

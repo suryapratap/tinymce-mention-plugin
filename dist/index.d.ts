@@ -1,11 +1,9 @@
 declare module 'tinymce-mention-plugin/index' {
-  import { mention } from "tinymce-mention-plugin/plugin";
-  export { mention };
+  import "./plugin";
 
 }
 declare module 'tinymce-mention-plugin/plugin' {
-  const mention: void;
-  export { mention };
+  export {};
 
 }
 declare module 'tinymce-mention-plugin' {

@@ -225,27 +225,25 @@
       url: "https://github.com/suryapratap/tinymce-mention-plugin"
     };
   };
-  function registerPlugin() {
-    window.tinymce.PluginManager.add(PLUGIN_NAME, function(editor) {
-      console.log("register mention plugin");
-      let autoComplete;
-      const autoCompleteData = editor.getParam(PLUGIN_NAME);
-      autoCompleteData.delimiter = autoCompleteData.delimiter ? Array.isArray(autoCompleteData.delimiter) ? autoCompleteData.delimiter : [autoCompleteData.delimiter] : ["@"];
-      function prevCharIsSpace() {
-        const range = editor.selection.getRng();
-        const start = range.startOffset;
-        const text = range.startContainer?.dataset || "";
-        return !text.toString().charAt(start - 1).trim().length;
+  var registerPlugin = (editor) => {
+    console.log("register mention plugin");
+    let autoComplete;
+    const autoCompleteData = editor.getParam(PLUGIN_NAME);
+    autoCompleteData.delimiter = autoCompleteData.delimiter ? Array.isArray(autoCompleteData.delimiter) ? autoCompleteData.delimiter : [autoCompleteData.delimiter] : ["@"];
+    function prevCharIsSpace() {
+      const range = editor.selection.getRng();
+      const start = range.startOffset;
+      const text = range.startContainer?.dataset || "";
+      return !text.toString().charAt(start - 1).trim().length;
+    }
+    console.log("register keypress for mention plugin");
+    editor.on("keypress", (event) => {
+      if (!!autoCompleteData?.delimiter?.includes(event.key) && prevCharIsSpace() && (!autoComplete || !autoComplete?.hasFocus)) {
+        event.preventDefault();
+        autoComplete = new AutoComplete(editor, { delimiter: event.key, ...autoCompleteData });
       }
-      console.log("register keypress for mention plugin");
-      editor.on("keypress", (event) => {
-        if (!!autoCompleteData?.delimiter?.includes(event.key) && prevCharIsSpace() && (!autoComplete || !autoComplete?.hasFocus)) {
-          event.preventDefault();
-          autoComplete = new AutoComplete(editor, { delimiter: event.key, ...autoCompleteData });
-        }
-      });
-      return { getMetadata };
     });
-  }
-  var mention = registerPlugin();
+    return { getMetadata };
+  };
+  window.tinymce.PluginManager.add(PLUGIN_NAME, registerPlugin);
 })();

@@ -1,2 +1,1 @@
-import { mention } from "./plugin";
-export { mention }
+import "./plugin";
