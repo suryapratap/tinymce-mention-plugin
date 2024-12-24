@@ -1,5 +1,4 @@
 import { Editor } from 'tinymce';
-let tinymce: any;
 
 type AutoCompleteOptions = {
     source: any[] | Function;
@@ -295,7 +294,7 @@ const getMetadata = () => {
 }
 
 function registerPlugin() {
-    tinymce.PluginManager.add(PLUGIN_NAME, function (editor: Editor) {
+    (window as any).tinymce.PluginManager.add(PLUGIN_NAME, function (editor: Editor) {
         console.log("register mention plugin");
 
         let autoComplete: AutoComplete | undefined;

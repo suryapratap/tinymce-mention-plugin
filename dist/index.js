@@ -1,7 +1,6 @@
 "use strict";
 (() => {
   // src/plugin.ts
-  var tinymce;
   var AutoComplete = class {
     constructor(editor, options) {
       this.query = "";
@@ -227,7 +226,7 @@
     };
   };
   function registerPlugin() {
-    tinymce.PluginManager.add(PLUGIN_NAME, function(editor) {
+    window.tinymce.PluginManager.add(PLUGIN_NAME, function(editor) {
       console.log("register mention plugin");
       let autoComplete;
       const autoCompleteData = editor.getParam(PLUGIN_NAME);
