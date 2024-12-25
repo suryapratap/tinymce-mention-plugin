@@ -1,4 +1,5 @@
 "use strict";
+console.log(" setting up mention");
 class AutoComplete {
   constructor(editor, options) {
     this.query = "";
@@ -223,7 +224,7 @@ const getMetadata = () => {
     url: "https://github.com/suryapratap/tinymce-mention-plugin"
   };
 };
-const registerPlugin = (editor) => {
+function registerPlugin(editor) {
   console.log("register mention plugin");
   let autoComplete;
   const autoCompleteData = editor.getParam(PLUGIN_NAME);
@@ -242,5 +243,6 @@ const registerPlugin = (editor) => {
     }
   });
   return { getMetadata };
-};
+}
+console.log("start register mention");
 window.tinymce.PluginManager.add(PLUGIN_NAME, registerPlugin);
