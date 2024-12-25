@@ -1,5 +1,6 @@
 declare module 'tinymce-mention-plugin/index' {
-  import "./plugin";
+  import { ACListItem, ACSourceFn, AutoCompleteOptions } from "tinymce-mention-plugin/plugin";
+  export { ACListItem, ACSourceFn, AutoCompleteOptions };
 
 }
 declare module 'tinymce-mention-plugin/plugin' {
