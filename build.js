@@ -10,22 +10,21 @@ new Generator({
 
 const sharedConfig = {
     entryPoints: ["src/index.ts", 'src/plugin.ts'],
+    platform: 'browser',
+    outdir: "dist",
     bundle: false,
     minify: false,
+    sourcemap: true,
+    target: ['ES6', 'chrome130', 'firefox130', 'safari20', 'edge130'],
     // external: Object.keys(dependencies),
 
 };
 
 build({
     ...sharedConfig,
-    platform: 'browser',
-    outdir: "dist",
     outExtension: { ".js": ".min.js" }
 });
 
 build({
     ...sharedConfig,
-    minify: false,
-    platform: 'browser',
-    outdir: "dist",
 });
