@@ -1,41 +1,54 @@
 import { Editor } from 'tinymce';
-type AutoCompleteOptions = {
-    source: any[] | Function;
+export type ACListItem = {
+    [key: string]: string;
+}
+export type ACSourceFn = (query: string, process: Function, delimiter: string) => ACListItem[];
+
+export type AutoCompleteOptions<TDelemeter> = {
+    source: ACListItem[] | ACSourceFn;
     delay: number;
     queryBy: string;
     insertFrom?: string;
     items: number;
-    delimiter?: string | string[];
+    delimiter?: TDelemeter;
     matcher?: (item: any) => boolean;
     sorter?: (items: any[]) => any[];
     renderDropdown?: () => string;
-    render?: (item: any, index: number) => string;
-    insert?: (item: any) => string;
+    render?: (item: ACListItem, index: number, opts: AutoCompleteOptions<string>) => string;
+    insert?: (item: any, opts: AutoCompleteOptions<string>) => string;
     highlighter?: (text: string) => string;
 };
 
+const render = (item: ACListItem, index: number, opts: AutoCompleteOptions<string>) => `<li><a href="javascript:;"><span data-idx="${index}">${item[opts.queryBy]}</span></a></li>`;
+
+const insert = (item: ACListItem, opts: AutoCompleteOptions<string>) => `<span>${item[opts.insertFrom || opts.queryBy]}</span>&nbsp;`;
+
+const highlighter = (text: string) => text;
+
+const autoCompleteDefaults: AutoCompleteOptions<string> = {
+    source: [],
+    delay: 500,
+    queryBy: 'name',
+    insertFrom: 'name',
+    items: 10,
+    delimiter: "@",
+    render,
+    insert,
+    highlighter,
+};
+
+
 class AutoComplete {
     private editor: any;
-    private options: AutoCompleteOptions;
+    private options: AutoCompleteOptions<string>;
     private query: string = '';
     private searchTimeout?: number;
     private $dropdown: HTMLElement | null = null;
     hasFocus: boolean = true;
 
-    constructor(editor: any, options: Partial<AutoCompleteOptions>) {
+    constructor(editor: any, options: Partial<AutoCompleteOptions<string>>) {
         this.editor = editor;
-        this.options = Object.assign(
-            {
-                source: [],
-                delay: 500,
-                queryBy: 'name',
-                items: 10,
-            },
-            options
-        );
-
-        this.options.insertFrom = this.options.insertFrom || this.options.queryBy;
-
+        this.options = Object.assign({}, autoCompleteDefaults, options);
         this.renderInput();
         this.bindEvents();
     }
@@ -146,10 +159,10 @@ class AutoComplete {
 
         clearTimeout(this.searchTimeout);
         this.searchTimeout = window.setTimeout(() => {
-            const items =
-                typeof this.options.source === 'function'
-                    ? this.options.source(this.query, this.process.bind(this), this.options.delimiter)
-                    : this.options.source;
+            const items = typeof this.options.source === 'function'
+                // we can force the "not null" qualification for delemiter since we set a default value
+                ? this.options.source(this.query, this.process.bind(this), this.options.delimiter!)
+                : this.options.source;
 
             if (items) {
                 this.process(items);
@@ -169,19 +182,10 @@ class AutoComplete {
         const result = limitedItems
             .map((item, i) => {
                 const element = document.createElement('div');
-                element.innerHTML = this.options.render
-                    ? this.options.render(item, i)
-                    : `<li><a href="javascript:;"><span>${item[this.options.queryBy]}</span></a></li>`;
-
-                element.innerHTML = element.innerHTML.replace(
-                    element.textContent || '',
-                    this.options.highlighter?.(element.textContent || '') || element.textContent || ''
-                );
-
-                Object.entries(item).forEach(([key, val]) => {
-                    element.dataset[key] = String(val);
-                });
-
+                element.innerHTML = this.options.render!(item, i, this.options!);
+                const text = element.textContent || "";
+                element.innerHTML = element.innerHTML.replace(text, this.options.highlighter!(text) || '');
+                Object.entries(item).forEach(([key, val]) => element.dataset[key] = `${val}`);
                 return element.outerHTML;
             })
             .join('');
@@ -240,7 +244,7 @@ class AutoComplete {
         this.editor.focus();
         const selection = this.editor.dom.select('span#autocomplete')[0];
         this.editor.dom.remove(selection);
-        this.editor.execCommand('mceInsertContent', false, this.options.insert ? this.options.insert(item) : `<span>${item[this.options.insertFrom || this.options.queryBy]}</span>&nbsp;`);
+        this.editor.execCommand('mceInsertContent', false, this.options.insert!(item, this.options));
     }
 
     private offset(): { top: number; left: number } {
@@ -295,7 +299,7 @@ const getMetadata = () => {
 function registerPlugin(editor: Editor) {
 
     let autoComplete: AutoComplete | undefined;
-    const autoCompleteData = editor.getParam(PLUGIN_NAME) as AutoCompleteOptions;
+    const autoCompleteData = editor.getParam(PLUGIN_NAME) as AutoCompleteOptions<string[]>;
     const delimiter = autoCompleteData.delimiter
         ? Array.isArray(autoCompleteData.delimiter)
             ? autoCompleteData.delimiter

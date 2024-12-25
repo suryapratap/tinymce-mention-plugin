@@ -1,20 +1,25 @@
 "use strict";
+const render = (item, index, opts) => `<li><a href="javascript:;"><span data-idx="${index}">${item[opts.queryBy]}</span></a></li>`;
+const insert = (item, opts) => `<span>${item[opts.insertFrom || opts.queryBy]}</span>&nbsp;`;
+const highlighter = (text) => text;
+const autoCompleteDefaults = {
+  source: [],
+  delay: 500,
+  queryBy: "name",
+  insertFrom: "name",
+  items: 10,
+  delimiter: "@",
+  render,
+  insert,
+  highlighter
+};
 class AutoComplete {
   constructor(editor, options) {
     this.query = "";
     this.$dropdown = null;
     this.hasFocus = true;
     this.editor = editor;
-    this.options = Object.assign(
-      {
-        source: [],
-        delay: 500,
-        queryBy: "name",
-        items: 10
-      },
-      options
-    );
-    this.options.insertFrom = this.options.insertFrom || this.options.queryBy;
+    this.options = Object.assign({}, autoCompleteDefaults, options);
     this.renderInput();
     this.bindEvents();
   }
@@ -126,14 +131,10 @@ class AutoComplete {
     const limitedItems = sortedItems.slice(0, this.options.items);
     const result = limitedItems.map((item, i) => {
       const element = document.createElement("div");
-      element.innerHTML = this.options.render ? this.options.render(item, i) : `<li><a href="javascript:;"><span>${item[this.options.queryBy]}</span></a></li>`;
-      element.innerHTML = element.innerHTML.replace(
-        element.textContent || "",
-        this.options.highlighter?.(element.textContent || "") || element.textContent || ""
-      );
-      Object.entries(item).forEach(([key, val]) => {
-        element.dataset[key] = String(val);
-      });
+      element.innerHTML = this.options.render(item, i, this.options);
+      const text = element.textContent || "";
+      element.innerHTML = element.innerHTML.replace(text, this.options.highlighter(text) || "");
+      Object.entries(item).forEach(([key, val]) => element.dataset[key] = `${val}`);
       return element.outerHTML;
     }).join("");
     if (result.length) {
@@ -181,7 +182,7 @@ class AutoComplete {
     this.editor.focus();
     const selection = this.editor.dom.select("span#autocomplete")[0];
     this.editor.dom.remove(selection);
-    this.editor.execCommand("mceInsertContent", false, this.options.insert ? this.options.insert(item) : `<span>${item[this.options.insertFrom || this.options.queryBy]}</span>&nbsp;`);
+    this.editor.execCommand("mceInsertContent", false, this.options.insert(item, this.options));
   }
   offset() {
     const rtePosition = this.editor.getContainer().getBoundingClientRect();
