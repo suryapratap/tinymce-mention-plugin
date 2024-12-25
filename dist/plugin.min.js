@@ -1,5 +1,4 @@
 "use strict";
-console.log(" setting up mention");
 class AutoComplete {
   constructor(editor, options) {
     this.query = "";
@@ -225,9 +224,9 @@ const getMetadata = () => {
   };
 };
 function registerPlugin(editor) {
-  console.log("register mention plugin");
   let autoComplete;
   const autoCompleteData = editor.getParam(PLUGIN_NAME);
+  console.log("register mention plugin with options", autoCompleteData);
   autoCompleteData.delimiter = autoCompleteData.delimiter ? Array.isArray(autoCompleteData.delimiter) ? autoCompleteData.delimiter : [autoCompleteData.delimiter] : ["@"];
   function prevCharIsSpace() {
     const range = editor.selection.getRng();
