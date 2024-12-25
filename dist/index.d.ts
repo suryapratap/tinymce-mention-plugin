@@ -1,9 +1,4 @@
 declare module 'tinymce-mention/index' {
-  import { ACListItem, ACSourceFn, AutoCompleteOptions } from "tinymce-mention/plugin";
-  export { ACListItem, ACSourceFn, AutoCompleteOptions };
-
-}
-declare module 'tinymce-mention/plugin' {
   export type ACListItem = {
       [key: string]: string;
   };
@@ -22,6 +17,10 @@ declare module 'tinymce-mention/plugin' {
       insert?: (item: any, opts: AutoCompleteOptions<string>) => string;
       highlighter?: (text: string) => string;
   };
+
+}
+declare module 'tinymce-mention/plugin' {
+  export {};
 
 }
 declare module 'tinymce-mention' {

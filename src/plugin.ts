@@ -1,23 +1,5 @@
 import { Editor } from 'tinymce';
-export type ACListItem = {
-    [key: string]: string;
-}
-export type ACSourceFn = (query: string, process: Function, delimiter: string) => ACListItem[];
-
-export type AutoCompleteOptions<TDelemeter> = {
-    source: ACListItem[] | ACSourceFn;
-    delay: number;
-    queryBy: string;
-    insertFrom?: string;
-    items: number;
-    delimiter?: TDelemeter;
-    matcher?: (item: any) => boolean;
-    sorter?: (items: any[]) => any[];
-    renderDropdown?: () => string;
-    render?: (item: ACListItem, index: number, opts: AutoCompleteOptions<string>) => string;
-    insert?: (item: any, opts: AutoCompleteOptions<string>) => string;
-    highlighter?: (text: string) => string;
-};
+import { ACListItem, AutoCompleteOptions } from '.';
 
 const render = (item: ACListItem, index: number, opts: AutoCompleteOptions<string>) => `<li><a href="javascript:;"><span data-idx="${index}">${item[opts.queryBy]}</span></a></li>`;
 
