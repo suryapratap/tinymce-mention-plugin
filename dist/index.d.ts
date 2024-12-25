@@ -1,9 +1,9 @@
-declare module 'tinymce-mention-plugin/index' {
-  import { ACListItem, ACSourceFn, AutoCompleteOptions } from "tinymce-mention-plugin/plugin";
+declare module 'tinymce-mention/index' {
+  import { ACListItem, ACSourceFn, AutoCompleteOptions } from "tinymce-mention/plugin";
   export { ACListItem, ACSourceFn, AutoCompleteOptions };
 
 }
-declare module 'tinymce-mention-plugin/plugin' {
+declare module 'tinymce-mention/plugin' {
   export type ACListItem = {
       [key: string]: string;
   };
@@ -24,7 +24,7 @@ declare module 'tinymce-mention-plugin/plugin' {
   };
 
 }
-declare module 'tinymce-mention-plugin' {
-  import main = require('tinymce-mention-plugin/src/index');
+declare module 'tinymce-mention' {
+  import main = require('tinymce-mention/src/index');
   export = main;
 }
