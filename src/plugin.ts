@@ -296,9 +296,7 @@ function registerPlugin(editor: Editor) {
 
     let autoComplete: AutoComplete | undefined;
     const autoCompleteData = editor.getParam(PLUGIN_NAME) as AutoCompleteOptions;
-    console.log("register mention plugin with options", autoCompleteData);
-
-    autoCompleteData.delimiter = autoCompleteData.delimiter
+    const delimiter = autoCompleteData.delimiter
         ? Array.isArray(autoCompleteData.delimiter)
             ? autoCompleteData.delimiter
             : [autoCompleteData.delimiter]
@@ -310,18 +308,17 @@ function registerPlugin(editor: Editor) {
         const text = ((range.startContainer as HTMLElement)?.dataset) || '';
         return !text.toString().charAt(start - 1).trim().length;
     }
-
-    console.log("register keypress for mention plugin");
     editor.on('keypress', (event: KeyboardEvent) => {
-        if (!!autoCompleteData?.delimiter?.includes(event.key) && prevCharIsSpace() && (!autoComplete || !autoComplete?.hasFocus)) {
+        if (delimiter.includes(event.key) && prevCharIsSpace() && (!autoComplete || !autoComplete?.hasFocus)) {
             event.preventDefault();
-            autoComplete = new AutoComplete(editor, { delimiter: event.key, ...autoCompleteData });
+            console.log("activate mentions autocomplete", event.key, { delimiter }, autoComplete?.hasFocus);
+            autoComplete = new AutoComplete(editor, { ...autoCompleteData, delimiter: event.key });
         }
     });
 
     return { getMetadata }
 }
-console.log("start register mention");
+
 (window as any).tinymce.PluginManager.add(PLUGIN_NAME, registerPlugin);
 
 
