@@ -2,7 +2,7 @@ declare module 'tinymce-mention/index' {
   export type ACListItem = {
       [key: string]: string;
   };
-  export type ACSourceFn = (query: string, process: Function, delimiter: string) => ACListItem[];
+  export type ACSourceFn = (query: string, process: Function, delimiter: string) => ACListItem[] | PromiseLike<ACListItem[]>;
   export type AutoCompleteOptions<TDelemeter> = {
       source: ACListItem[] | ACSourceFn;
       delay: number;

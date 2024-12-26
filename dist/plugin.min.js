@@ -18,6 +18,7 @@ var __spreadValues = (a, b) => {
   return a;
 };
 var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
+const wordJoiner = "\u2060";
 const render = (item, index, opts) => `<li><a href="javascript:;"><span data-idx="${index}">${item[opts.queryBy]}</span></a></li>`;
 const insert = (item, opts) => `<span>${item[opts.insertFrom || opts.queryBy]}</span>&nbsp;`;
 const highlighter = (text) => text;
@@ -46,7 +47,7 @@ class AutoComplete {
     const rawHtml = `
       <span id="autocomplete">
           <span id="autocomplete-delimiter">${this.options.delimiter || ""}</span>
-          <span id="autocomplete-searchtext"><span class="dummy">\uFEFF</span></span>
+          <span id="autocomplete-searchtext"><span class="dummy">${wordJoiner}</span></span>
       </span>
     `;
     this.editor.execCommand("mceInsertContent", false, rawHtml);
@@ -133,15 +134,20 @@ class AutoComplete {
   lookup() {
     var _a;
     const searchTextElement = this.editor.getBody().querySelector("#autocomplete-searchtext");
-    this.query = ((_a = searchTextElement == null ? void 0 : searchTextElement.textContent) == null ? void 0 : _a.trim().replace("\uFEFF", "")) || "";
+    this.query = ((_a = searchTextElement == null ? void 0 : searchTextElement.textContent) == null ? void 0 : _a.trim().replace(wordJoiner, "")) || "";
     if (!this.$dropdown) {
       this.show();
     }
     clearTimeout(this.searchTimeout);
     this.searchTimeout = window.setTimeout(() => {
       const items = typeof this.options.source === "function" ? this.options.source(this.query, this.process.bind(this), this.options.delimiter) : this.options.source;
-      if (items) {
+      if (!items) return;
+      if (Array.isArray(items)) {
         this.process(items);
+      } else {
+        items.then((items2) => {
+          this.process(items2);
+        });
       }
     }, this.options.delay);
   }
@@ -150,14 +156,16 @@ class AutoComplete {
     const matchedItems = data.filter(this.options.matcher || ((item) => item[this.options.queryBy].toLowerCase().includes(this.query.toLowerCase())));
     const sortedItems = this.options.sorter ? this.options.sorter(matchedItems) : matchedItems;
     const limitedItems = sortedItems.slice(0, this.options.items);
-    const result = limitedItems.map((item, i) => {
+    const result = limitedItems.reduce((r, item, i, arr) => {
       const element = document.createElement("div");
       element.innerHTML = this.options.render(item, i, this.options);
       const text = element.textContent || "";
       element.innerHTML = element.innerHTML.replace(text, this.options.highlighter(text) || "");
       Object.entries(item).forEach(([key, val]) => element.dataset[key] = `${val}`);
-      return element.outerHTML;
-    }).join("");
+      r = `${r}${element.outerHTML}`;
+      document.removeChild(element);
+      return r;
+    }, "");
     if (result.length) {
       this.$dropdown.innerHTML = result;
       this.$dropdown.style.display = "block";

@@ -1,11 +1,14 @@
 import { Editor } from 'tinymce';
 import { ACListItem, AutoCompleteOptions } from '.';
 
+const wordJoiner = '\u2060';
+
 const render = (item: ACListItem, index: number, opts: AutoCompleteOptions<string>) => `<li><a href="javascript:;"><span data-idx="${index}">${item[opts.queryBy]}</span></a></li>`;
 
 const insert = (item: ACListItem, opts: AutoCompleteOptions<string>) => `<span>${item[opts.insertFrom || opts.queryBy]}</span>&nbsp;`;
 
 const highlighter = (text: string) => text;
+
 
 const autoCompleteDefaults: AutoCompleteOptions<string> = {
     source: [],
@@ -39,7 +42,7 @@ class AutoComplete {
         const rawHtml = `
       <span id="autocomplete">
           <span id="autocomplete-delimiter">${this.options.delimiter || ''}</span>
-          <span id="autocomplete-searchtext"><span class="dummy">\uFEFF</span></span>
+          <span id="autocomplete-searchtext"><span class="dummy">${wordJoiner}</span></span>
       </span>
     `;
 
@@ -133,7 +136,7 @@ class AutoComplete {
 
     private lookup(): void {
         const searchTextElement = this.editor.getBody().querySelector('#autocomplete-searchtext') as HTMLElement | null;
-        this.query = searchTextElement?.textContent?.trim().replace('\uFEFF', '') || '';
+        this.query = searchTextElement?.textContent?.trim().replace(wordJoiner, '') || '';
 
         if (!this.$dropdown) {
             this.show();
@@ -146,13 +149,20 @@ class AutoComplete {
                 ? this.options.source(this.query, this.process.bind(this), this.options.delimiter!)
                 : this.options.source;
 
-            if (items) {
+            if (!items) return;
+
+            if (Array.isArray(items)) {
                 this.process(items);
+            } else {
+                // items is Promise<ACListItem[]>
+                items.then(items => {
+                    this.process(items);
+                })
             }
         }, this.options.delay);
     }
 
-    private process(data: any[]): void {
+    private process(data: ACListItem[]): void {
         if (!this.hasFocus) return;
 
         const matchedItems = data.filter(this.options.matcher || ((item) =>
@@ -160,17 +170,17 @@ class AutoComplete {
 
         const sortedItems = this.options.sorter ? this.options.sorter(matchedItems) : matchedItems;
         const limitedItems = sortedItems.slice(0, this.options.items);
+        const result = limitedItems.reduce((r, item, i, arr) => {
+            const element = document.createElement('div');
+            element.innerHTML = this.options.render!(item, i, this.options!);
+            const text = element.textContent || "";
+            element.innerHTML = element.innerHTML.replace(text, this.options.highlighter!(text) || '');
+            Object.entries(item).forEach(([key, val]) => element.dataset[key] = `${val}`);
+            r = `${r}${element.outerHTML}`;
+            document.removeChild(element);
+            return r;
+        }, "")
 
-        const result = limitedItems
-            .map((item, i) => {
-                const element = document.createElement('div');
-                element.innerHTML = this.options.render!(item, i, this.options!);
-                const text = element.textContent || "";
-                element.innerHTML = element.innerHTML.replace(text, this.options.highlighter!(text) || '');
-                Object.entries(item).forEach(([key, val]) => element.dataset[key] = `${val}`);
-                return element.outerHTML;
-            })
-            .join('');
 
         if (result.length) {
             this.$dropdown!.innerHTML = result;
