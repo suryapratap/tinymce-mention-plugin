@@ -140,14 +140,12 @@ class AutoComplete {
     }
     clearTimeout(this.searchTimeout);
     this.searchTimeout = window.setTimeout(() => {
-      const items = typeof this.options.source === "function" ? this.options.source(this.query, this.process.bind(this), this.options.delimiter) : this.options.source;
+      const items = this.options.source;
       if (!items) return;
       if (Array.isArray(items)) {
         this.process(items);
       } else {
-        items.then((items2) => {
-          this.process(items2);
-        });
+        items(this.query, this.process.bind(this), this.options.delimiter);
       }
     }, this.options.delay);
   }

@@ -144,20 +144,14 @@ class AutoComplete {
 
         clearTimeout(this.searchTimeout);
         this.searchTimeout = window.setTimeout(() => {
-            const items = typeof this.options.source === 'function'
-                // we can force the "not null" qualification for delemiter since we set a default value
-                ? this.options.source(this.query, this.process.bind(this), this.options.delimiter!)
-                : this.options.source;
-
+            const items = this.options.source;
             if (!items) return;
 
             if (Array.isArray(items)) {
                 this.process(items);
             } else {
-                // items is Promise<ACListItem[]>
-                items.then(items => {
-                    this.process(items);
-                })
+                // here we have a fun that take a call back
+                items(this.query, this.options.delimiter!, this.process.bind(this))
             }
         }, this.options.delay);
     }
@@ -236,7 +230,7 @@ class AutoComplete {
         this.editor.focus();
         const selection = this.editor.dom.select('span#autocomplete')[0];
         this.editor.dom.remove(selection);
-        this.editor.execCommand('mceInsertContent', false, this.options.insert!(item, this.options));
+        this.editor.execCommand('mceInsertContent', false, this.options.insert!(item as ACListItem, this.options));
     }
 
     private offset(): { top: number; left: number } {
