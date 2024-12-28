@@ -215,6 +215,7 @@ class AutoComplete {
     this.editor.execCommand("mceInsertContent", false, this.options.insert(item, this.options));
   }
   offset() {
+    console.log("this.editor", this.editor.getBoundingClientRect());
     const rtePosition = this.editor.getBoundingClientRect();
     const contentAreaPosition = this.editor.getContentAreaContainer().getBoundingClientRect();
     const nodePosition = this.editor.dom.select("span#autocomplete")[0].getBoundingClientRect();
