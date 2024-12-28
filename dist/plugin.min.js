@@ -145,7 +145,7 @@ class AutoComplete {
       if (Array.isArray(items)) {
         this.process(items);
       } else {
-        items(this.query, this.process.bind(this), this.options.delimiter);
+        items(this.query, this.options.delimiter, this.process.bind(this));
       }
     }, this.options.delay);
   }
