@@ -217,9 +217,9 @@ class AutoComplete {
   offset() {
     var _a;
     console.log("this.editor", this.editor);
-    const rtePosition = this.editor.iframeElement.getBoundingClientRect();
-    const contentAreaPosition = this.editor.iframeElement.getBoundingClientRect();
-    const autocompleteElement = (_a = this.editor.iframeElement.ownerDocument) == null ? void 0 : _a.querySelector("#autocomplete");
+    const rtePosition = this.editor.dom.document.getBoundingClientRect();
+    const contentAreaPosition = this.editor.dom.document.getBoundingClientRect();
+    const autocompleteElement = (_a = this.editor.dom.document.ownerDocument) == null ? void 0 : _a.querySelector("#autocomplete");
     if (!autocompleteElement) {
       throw new Error("Autocomplete element not found");
     }
