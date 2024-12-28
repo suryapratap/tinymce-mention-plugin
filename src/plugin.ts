@@ -237,7 +237,7 @@ class AutoComplete {
         console.log("this.editor", this.editor);
         const rtePosition = (this.editor.iframeElement as HTMLElement).getBoundingClientRect();
         const contentAreaPosition = ((this.editor.iframeElement as HTMLElement)).getBoundingClientRect();
-        const autocompleteElement = this.editor.iframeElement?.querySelector('#autocomplete') as HTMLElement | null;
+        const autocompleteElement = (this.editor.iframeElement as HTMLIFrameElement).ownerDocument?.querySelector('#autocomplete') as HTMLElement | null;
         if (!autocompleteElement) {
             throw new Error('Autocomplete element not found');
         }
