@@ -234,7 +234,7 @@ class AutoComplete {
     }
 
     private offset(): { top: number; left: number } {
-        console.log("this.editor", (this.editor as HTMLElement).getBoundingClientRect());
+        console.log("this.editor", (this.editor.dom as HTMLElement).getBoundingClientRect());
         const rtePosition = (this.editor as HTMLElement).getBoundingClientRect();
         const contentAreaPosition = this.editor.getContentAreaContainer().getBoundingClientRect();
         const nodePosition = (this.editor.dom.select('span#autocomplete')[0] as HTMLElement).getBoundingClientRect();
