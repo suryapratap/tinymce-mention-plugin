@@ -322,9 +322,15 @@ function registerPlugin(editor: Editor) {
         return !text.toString().charAt(start - 1).trim().length;
     }
     editor.on('keypress', (event: KeyboardEvent) => {
-        if(!delimiter.includes(event.key)) return;
-        if(!prevCharIsSpace()) return;
-        if((autoComplete && autoComplete?.hasFocus)) return;
+        if(!delimiter.includes(event.key)){
+            console.log("not delimiter", event.key, { delimiter });
+            return};
+        if(!prevCharIsSpace()) {
+            console.log("not prevCharIsSpace", event.key, { delimiter });
+            return};
+        if((autoComplete && autoComplete?.hasFocus)) {
+            console.log("not autoComplete", event.key, { delimiter }, autoComplete?.hasFocus);
+            return};
         // if (delimiter.includes(event.key) && prevCharIsSpace() && (!autoComplete || !autoComplete?.hasFocus)) {
             event.preventDefault();
             console.log("activate mentions autocomplete", event.key, { delimiter }, autoComplete?.hasFocus);

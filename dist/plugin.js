@@ -284,9 +284,21 @@ function registerPlugin(editor) {
     return !text.toString().charAt(start - 1).trim().length;
   }
   editor.on("keypress", (event) => {
-    if (!delimiter.includes(event.key)) return;
-    if (!prevCharIsSpace()) return;
-    if (autoComplete && (autoComplete == null ? void 0 : autoComplete.hasFocus)) return;
+    if (!delimiter.includes(event.key)) {
+      console.log("not delimiter", event.key, { delimiter });
+      return;
+    }
+    ;
+    if (!prevCharIsSpace()) {
+      console.log("not prevCharIsSpace", event.key, { delimiter });
+      return;
+    }
+    ;
+    if (autoComplete && (autoComplete == null ? void 0 : autoComplete.hasFocus)) {
+      console.log("not autoComplete", event.key, { delimiter }, autoComplete == null ? void 0 : autoComplete.hasFocus);
+      return;
+    }
+    ;
     event.preventDefault();
     console.log("activate mentions autocomplete", event.key, { delimiter }, autoComplete == null ? void 0 : autoComplete.hasFocus);
     autoComplete = new AutoComplete(editor, __spreadProps(__spreadValues({}, autoCompleteData), { delimiter: event.key }));
