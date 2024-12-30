@@ -188,9 +188,10 @@ class AutoComplete {
     const li = event.target.closest("li");
     if (!li) return;
     const span = li.querySelector("span[data-idx]");
+    var val = span == null ? void 0 : span.innerHTML;
     if (span) {
       console.log("Span dataset:", span.dataset);
-      this.select(span.dataset);
+      this.select({ value: val });
     }
     this.cleanUp(false);
     event.stopPropagation();

@@ -207,9 +207,10 @@ class AutoComplete {
       
         // If the dataset is actually on the <span>:
         const span = li.querySelector('span[data-idx]');
+        var val = span?.innerHTML
         if (span) {
           console.log('Span dataset:', (span as HTMLElement).dataset);
-          this.select((span as HTMLElement).dataset);
+          this.select({value:val});
         }
         
         this.cleanUp(false);
