@@ -243,7 +243,7 @@ class AutoComplete {
         const selection = autocompleteElement;
         console.log("selection", selection);
         this.editor.dom.remove(selection);
-        console.log("item", item, this.options);
+        console.log("item", item, this.options, this.options.insert);
         var result = this.options.insert!(item as ACListItem, this.options)
         console.log("result", result);
         this.editor.execCommand('mceInsertContent', false, result);
