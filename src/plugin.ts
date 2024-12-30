@@ -234,7 +234,7 @@ class AutoComplete {
     }
 
     private offset(): { top: number; left: number } {
-        console.log("this.editor", this.editor,"this.editor.dom.document", this.editor.dom.doc);
+        console.log("this.editor", this.editor,"this.editor.dom.document", this.editor.dom.doc.document);
         const rtePosition = (this.editor.dom.doc.getElementID('tinymce') as HTMLElement).getBoundingClientRect();
         const contentAreaPosition = ((this.editor.dom.doc.getElementID('tinymce') as HTMLElement)).getBoundingClientRect();
         const autocompleteElement = (this.editor.dom.doc.getElementID('tinymce') as HTMLElement).querySelector('#autocomplete') as HTMLElement | null;
