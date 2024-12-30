@@ -185,13 +185,14 @@ class AutoComplete {
     this.$dropdown = dropdown;
   }
   autoCompleteClick(event) {
-    console.log("event", event);
-    const target = event.target.closest("li");
-    console.log("target", target, target == null ? void 0 : target.dataset);
-    if (target) {
-      this.select(target.dataset);
-      this.cleanUp(false);
+    const li = event.target.closest("li");
+    if (!li) return;
+    const span = li.querySelector("span[data-idx]");
+    if (span) {
+      console.log("Span dataset:", span.dataset);
+      this.select(span.dataset);
     }
+    this.cleanUp(false);
     event.stopPropagation();
     event.preventDefault();
   }

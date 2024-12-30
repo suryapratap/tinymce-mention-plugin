@@ -202,16 +202,21 @@ class AutoComplete {
     }
 
     private autoCompleteClick(event: MouseEvent): void {
-        console.log("event", event);
-        const target = (event.target as HTMLElement).closest('li');
-        console.log("target", target, target?.dataset);
-        if (target) {
-            this.select(target.dataset);
-            this.cleanUp(false);
+        const li = (event.target as HTMLElement).closest('li');
+        if (!li) return;
+      
+        // If the dataset is actually on the <span>:
+        const span = li.querySelector('span[data-idx]');
+        if (span) {
+          console.log('Span dataset:', (span as HTMLElement).dataset);
+          this.select((span as HTMLElement).dataset);
         }
+        
+        this.cleanUp(false);
         event.stopPropagation();
         event.preventDefault();
-    }
+      }
+      
 
     private highlightPreviousResult(): void {
         const items = this.$dropdown?.querySelectorAll('li') || [];
