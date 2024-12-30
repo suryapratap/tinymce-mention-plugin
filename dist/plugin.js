@@ -151,6 +151,7 @@ class AutoComplete {
   }
   process(data) {
     if (!this.hasFocus) return;
+    console.log("data Recived in porcess ", data);
     console.log(this.options.queryBy, this.query, data);
     const matchedItems = data.filter(this.options.matcher || ((item) => item[this.options.queryBy].toLowerCase().includes(this.query.toLowerCase())));
     const sortedItems = this.options.sorter ? this.options.sorter(matchedItems) : matchedItems;
