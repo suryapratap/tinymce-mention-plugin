@@ -286,6 +286,9 @@ class AutoComplete {
             this.editor.selection.select(replacement);
             this.editor.selection.collapse();
         }
+        else{
+            this.editor.fire('mentionfinished');
+        }
     }
 
     private unbindEvents(): void {
@@ -336,6 +339,9 @@ function registerPlugin(editor: Editor) {
             console.log("activate mentions autocomplete", event.key, { delimiter }, autoComplete?.hasFocus);
             autoComplete = new AutoComplete(editor, { ...autoCompleteData, delimiter: event.key });
         // }
+    });
+    editor.on('mentionfinished', () => {
+        autoComplete = undefined;
     });
 
     return { getMetadata }
