@@ -212,6 +212,7 @@ class AutoComplete {
   select(item) {
     this.editor.focus();
     const selection = this.editor.dom.select("span#autocomplete")[0];
+    console.log("selection", selection);
     this.editor.dom.remove(selection);
     this.editor.execCommand("mceInsertContent", false, this.options.insert(item, this.options));
   }
