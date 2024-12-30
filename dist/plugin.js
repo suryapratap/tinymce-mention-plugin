@@ -284,11 +284,12 @@ function registerPlugin(editor) {
     return !text.toString().charAt(start - 1).trim().length;
   }
   editor.on("keypress", (event) => {
-    if (delimiter.includes(event.key) && prevCharIsSpace() && (!autoComplete || !(autoComplete == null ? void 0 : autoComplete.hasFocus))) {
-      event.preventDefault();
-      console.log("activate mentions autocomplete", event.key, { delimiter }, autoComplete == null ? void 0 : autoComplete.hasFocus);
-      autoComplete = new AutoComplete(editor, __spreadProps(__spreadValues({}, autoCompleteData), { delimiter: event.key }));
-    }
+    if (!delimiter.includes(event.key)) return;
+    if (!prevCharIsSpace()) return;
+    if (autoComplete && (autoComplete == null ? void 0 : autoComplete.hasFocus)) return;
+    event.preventDefault();
+    console.log("activate mentions autocomplete", event.key, { delimiter }, autoComplete == null ? void 0 : autoComplete.hasFocus);
+    autoComplete = new AutoComplete(editor, __spreadProps(__spreadValues({}, autoCompleteData), { delimiter: event.key }));
   });
   return { getMetadata };
 }

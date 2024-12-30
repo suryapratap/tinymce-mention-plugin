@@ -322,11 +322,14 @@ function registerPlugin(editor: Editor) {
         return !text.toString().charAt(start - 1).trim().length;
     }
     editor.on('keypress', (event: KeyboardEvent) => {
-        if (delimiter.includes(event.key) && prevCharIsSpace() && (!autoComplete || !autoComplete?.hasFocus)) {
+        if(!delimiter.includes(event.key)) return;
+        if(!prevCharIsSpace()) return;
+        if((autoComplete && autoComplete?.hasFocus)) return;
+        // if (delimiter.includes(event.key) && prevCharIsSpace() && (!autoComplete || !autoComplete?.hasFocus)) {
             event.preventDefault();
             console.log("activate mentions autocomplete", event.key, { delimiter }, autoComplete?.hasFocus);
             autoComplete = new AutoComplete(editor, { ...autoCompleteData, delimiter: event.key });
-        }
+        // }
     });
 
     return { getMetadata }
