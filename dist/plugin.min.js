@@ -218,7 +218,7 @@ class AutoComplete {
     var _a;
     console.log("this.editor", this.editor);
     const rtePosition = this.editor.dom.document.getBoundingClientRect();
-    const contentAreaPosition = this.editor.dom.document.getBoundingClientRect();
+    const contentAreaPosition = this.editor.dom.document.body.getBoundingClientRect();
     const autocompleteElement = (_a = this.editor.dom.document.body.ownerDocument) == null ? void 0 : _a.querySelector("#autocomplete");
     if (!autocompleteElement) {
       throw new Error("Autocomplete element not found");
