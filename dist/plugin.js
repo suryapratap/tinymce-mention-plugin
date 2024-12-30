@@ -216,9 +216,9 @@ class AutoComplete {
   }
   offset() {
     console.log("this.editor", this.editor);
-    const rtePosition = document.getElementById("body").getBoundingClientRect();
-    const contentAreaPosition = this.editor.dom.document.body.getBoundingClientRect();
-    const autocompleteElement = this.editor.dom.document.body.querySelector("#autocomplete");
+    const rtePosition = this.editor.dom.document.getElementID("tinymce").getBoundingClientRect();
+    const contentAreaPosition = this.editor.dom.document.getElementID("tinymce").getBoundingClientRect();
+    const autocompleteElement = this.editor.dom.document.getElementID("tinymce").querySelector("#autocomplete");
     if (!autocompleteElement) {
       throw new Error("Autocomplete element not found");
     }
