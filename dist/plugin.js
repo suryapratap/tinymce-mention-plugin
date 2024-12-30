@@ -256,6 +256,7 @@ class AutoComplete {
       this.editor.selection.select(replacement);
       this.editor.selection.collapse();
     } else {
+      console.log("mentionfinished");
       this.editor.fire("mentionfinished");
     }
   }
@@ -306,6 +307,7 @@ function registerPlugin(editor) {
     autoComplete = new AutoComplete(editor, __spreadProps(__spreadValues({}, autoCompleteData), { delimiter: event.key }));
   });
   editor.on("mentionfinished", () => {
+    console.log("mentionfinished");
     autoComplete = void 0;
   });
   return { getMetadata };

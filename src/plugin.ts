@@ -287,6 +287,7 @@ class AutoComplete {
             this.editor.selection.collapse();
         }
         else{
+            console.log("mentionfinished")
             this.editor.fire('mentionfinished');
         }
     }
@@ -341,6 +342,7 @@ function registerPlugin(editor: Editor) {
         // }
     });
     editor.on('mentionfinished', () => {
+        console.log("mentionfinished");
         autoComplete = undefined;
     });
 
