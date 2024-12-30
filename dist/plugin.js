@@ -215,7 +215,7 @@ class AutoComplete {
     this.editor.execCommand("mceInsertContent", false, this.options.insert(item, this.options));
   }
   offset() {
-    console.log("this.editor", this.editor);
+    console.log("this.editor", this.editor, "this.editor.dom.document", this.editor.dom.document);
     const rtePosition = this.editor.dom.document.getElementID("tinymce").getBoundingClientRect();
     const contentAreaPosition = this.editor.dom.document.getElementID("tinymce").getBoundingClientRect();
     const autocompleteElement = this.editor.dom.document.getElementID("tinymce").querySelector("#autocomplete");
