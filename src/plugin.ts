@@ -244,6 +244,7 @@ class AutoComplete {
         const selection = autocompleteElement;
         console.log("selection", selection);
         this.editor.dom.remove(selection);
+        this.options.insertFrom = 'value'
         console.log("item", item, this.options, this.options.insert);
         var result = this.options.insert!(item as ACListItem, this.options)
         console.log("result", result);
