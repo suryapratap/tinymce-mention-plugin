@@ -151,6 +151,7 @@ class AutoComplete {
   }
   process(data) {
     if (!this.hasFocus) return;
+    console.log(this.options.queryBy, this.query, data);
     const matchedItems = data.filter(this.options.matcher || ((item) => item[this.options.queryBy].toLowerCase().includes(this.query.toLowerCase())));
     const sortedItems = this.options.sorter ? this.options.sorter(matchedItems) : matchedItems;
     const limitedItems = sortedItems.slice(0, this.options.items);
@@ -161,7 +162,6 @@ class AutoComplete {
       element.innerHTML = element.innerHTML.replace(text, this.options.highlighter(text) || "");
       Object.entries(item).forEach(([key, val]) => element.dataset[key] = `${val}`);
       r = `${r}${element.outerHTML}`;
-      document.removeChild(element);
       return r;
     }, "");
     if (result.length) {
@@ -214,9 +214,14 @@ class AutoComplete {
     this.editor.execCommand("mceInsertContent", false, this.options.insert(item, this.options));
   }
   offset() {
-    const rtePosition = this.editor.getContainer().getBoundingClientRect();
-    const contentAreaPosition = this.editor.getContentAreaContainer().getBoundingClientRect();
-    const nodePosition = this.editor.dom.select("span#autocomplete")[0].getBoundingClientRect();
+    console.log("this.editor", this.editor, "this.editor.dom.document", this.editor.dom.doc.activeElement);
+    const rtePosition = this.editor.dom.doc.activeElement.getBoundingClientRect();
+    const contentAreaPosition = this.editor.dom.doc.activeElement.getBoundingClientRect();
+    const autocompleteElement = this.editor.dom.doc.activeElement.querySelector("#autocomplete");
+    if (!autocompleteElement) {
+      throw new Error("Autocomplete element not found");
+    }
+    const nodePosition = autocompleteElement.getBoundingClientRect();
     return {
       top: rtePosition.top + contentAreaPosition.top + nodePosition.top + this.editor.selection.getNode().offsetHeight - this.editor.getDoc().scrollTop + 5,
       left: rtePosition.left + contentAreaPosition.left + nodePosition.left

@@ -158,7 +158,7 @@ class AutoComplete {
 
     private process(data: ACListItem[]): void {
         if (!this.hasFocus) return;
-
+        console.log(this.options.queryBy, this.query, data);
         const matchedItems = data.filter(this.options.matcher || ((item) =>
             item[this.options.queryBy].toLowerCase().includes(this.query.toLowerCase())));
 
@@ -171,7 +171,7 @@ class AutoComplete {
             element.innerHTML = element.innerHTML.replace(text, this.options.highlighter!(text) || '');
             Object.entries(item).forEach(([key, val]) => element.dataset[key] = `${val}`);
             r = `${r}${element.outerHTML}`;
-            document.removeChild(element);
+            // document.appendChild(element);
             return r;
         }, "")
 
@@ -234,9 +234,14 @@ class AutoComplete {
     }
 
     private offset(): { top: number; left: number } {
-        const rtePosition = this.editor.getContainer().getBoundingClientRect();
-        const contentAreaPosition = this.editor.getContentAreaContainer().getBoundingClientRect();
-        const nodePosition = (this.editor.dom.select('span#autocomplete')[0] as HTMLElement).getBoundingClientRect();
+        console.log("this.editor", this.editor,"this.editor.dom.document", this.editor.dom.doc.activeElement);
+        const rtePosition = (this.editor.dom.doc.activeElement as HTMLElement).getBoundingClientRect();
+        const contentAreaPosition = ((this.editor.dom.doc.activeElement as HTMLElement)).getBoundingClientRect();
+        const autocompleteElement = (this.editor.dom.doc.activeElement as HTMLElement).querySelector('#autocomplete') as HTMLElement | null;
+        if (!autocompleteElement) {
+            throw new Error('Autocomplete element not found');
+        }
+        const nodePosition = autocompleteElement.getBoundingClientRect();
 
         return {
             top: rtePosition.top + contentAreaPosition.top + nodePosition.top + (this.editor.selection.getNode() as HTMLElement).offsetHeight - this.editor.getDoc().scrollTop + 5,
