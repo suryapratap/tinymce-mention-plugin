@@ -231,7 +231,9 @@ class AutoComplete {
 
     private select(item: DOMStringMap): void {
         this.editor.focus();
-        const selection = this.editor.dom.doc.activeElement.select('span#autocomplete')[0];
+        const autocompleteElement = (this.editor.dom.doc.activeElement as HTMLElement).querySelector('#autocomplete');
+        if (!autocompleteElement) return;
+        const selection = autocompleteElement;
         console.log("selection", selection);
         this.editor.dom.remove(selection);
         this.editor.execCommand('mceInsertContent', false, this.options.insert!(item as ACListItem, this.options));
