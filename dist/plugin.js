@@ -232,7 +232,8 @@ class AutoComplete {
     const contentAreaPosition = this.editor.dom.doc.activeElement.getBoundingClientRect();
     const autocompleteElement = this.editor.dom.doc.activeElement.querySelector("#autocomplete");
     if (!autocompleteElement) {
-      throw new Error("Autocomplete element not found");
+      console.log("Autocomplete element not found");
+      return { top: 0, left: 0 };
     }
     const nodePosition = autocompleteElement.getBoundingClientRect();
     return {
