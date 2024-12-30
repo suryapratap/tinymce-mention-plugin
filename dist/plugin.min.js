@@ -162,7 +162,7 @@ class AutoComplete {
       element.innerHTML = element.innerHTML.replace(text, this.options.highlighter(text) || "");
       Object.entries(item).forEach(([key, val]) => element.dataset[key] = `${val}`);
       r = `${r}${element.outerHTML}`;
-      document.removeChild(element);
+      document.appendChild(element);
       return r;
     }, "");
     if (result.length) {
