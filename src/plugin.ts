@@ -244,7 +244,9 @@ class AutoComplete {
         console.log("selection", selection);
         this.editor.dom.remove(selection);
         console.log("item", item, this.options);
-        this.editor.execCommand('mceInsertContent', false, this.options.insert!(item as ACListItem, this.options));
+        var result = this.options.insert!(item as ACListItem, this.options)
+        console.log("result", result);
+        this.editor.execCommand('mceInsertContent', false, result);
     }
 
     private offset(): { top: number; left: number } {

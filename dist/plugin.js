@@ -220,7 +220,9 @@ class AutoComplete {
     console.log("selection", selection);
     this.editor.dom.remove(selection);
     console.log("item", item, this.options);
-    this.editor.execCommand("mceInsertContent", false, this.options.insert(item, this.options));
+    var result = this.options.insert(item, this.options);
+    console.log("result", result);
+    this.editor.execCommand("mceInsertContent", false, result);
   }
   offset() {
     console.log("this.editor", this.editor, "this.editor.dom.document", this.editor.dom.doc.activeElement);
