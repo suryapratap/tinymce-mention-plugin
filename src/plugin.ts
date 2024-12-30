@@ -202,6 +202,7 @@ class AutoComplete {
     }
 
     private autoCompleteClick(event: MouseEvent): void {
+        console.log("event", event);
         const target = (event.target as HTMLElement).closest('li');
         if (target) {
             this.select(target.dataset);

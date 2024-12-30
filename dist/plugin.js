@@ -185,6 +185,7 @@ class AutoComplete {
     this.$dropdown = dropdown;
   }
   autoCompleteClick(event) {
+    console.log("event", event);
     const target = event.target.closest("li");
     if (target) {
       this.select(target.dataset);
