@@ -187,6 +187,7 @@ class AutoComplete {
   autoCompleteClick(event) {
     console.log("event", event);
     const target = event.target.closest("li");
+    console.log("target", target, target == null ? void 0 : target.dataset);
     if (target) {
       this.select(target.dataset);
       this.cleanUp(false);
