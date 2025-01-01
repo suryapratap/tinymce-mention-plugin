@@ -61,7 +61,8 @@ class AutoComplete {
     this.editor.on("keydown", this.rteKeyDown.bind(this), true);
     this.editor.on("click", this.rteClicked.bind(this));
     document.body.addEventListener("click", this.rteLostFocus.bind(this));
-    this.editor.getWin().addEventListener("scroll", () => this.cleanUp(true));
+    this.handleEditorScroll = () => this.cleanUp(true);
+    this.editor.getWin().addEventListener("scroll", this.handleEditorScroll);
   }
   rteKeyUp(event) {
     switch (event.key) {
@@ -133,8 +134,12 @@ class AutoComplete {
   }
   lookup() {
     var _a;
+    if (!this.hasFocus) return;
     const searchTextElement = this.editor.getBody().querySelector("#autocomplete-searchtext");
     this.query = ((_a = searchTextElement == null ? void 0 : searchTextElement.textContent) == null ? void 0 : _a.trim().replace(wordJoiner, "")) || "";
+    if (!this.editor.getBody().querySelector("#autocomplete")) {
+      return;
+    }
     if (!this.$dropdown) {
       this.show();
     }
@@ -151,24 +156,32 @@ class AutoComplete {
   }
   process(data) {
     if (!this.hasFocus) return;
-    const matchedItems = data.filter(this.options.matcher || ((item) => item[this.options.queryBy].toLowerCase().includes(this.query.toLowerCase())));
+    console.log("data Received in process", data);
+    const matchedItems = data.filter(
+      this.options.matcher || ((item) => item[this.options.queryBy].toLowerCase().includes(this.query.toLowerCase()))
+    );
     const sortedItems = this.options.sorter ? this.options.sorter(matchedItems) : matchedItems;
     const limitedItems = sortedItems.slice(0, this.options.items);
-    const result = limitedItems.reduce((r, item, i, arr) => {
+    const result = limitedItems.reduce((r, item, i) => {
       const element = document.createElement("div");
       element.innerHTML = this.options.render(item, i, this.options);
       const text = element.textContent || "";
       element.innerHTML = element.innerHTML.replace(text, this.options.highlighter(text) || "");
-      Object.entries(item).forEach(([key, val]) => element.dataset[key] = `${val}`);
-      r = `${r}${element.outerHTML}`;
-      document.removeChild(element);
+      Object.entries(item).forEach(([key, val]) => {
+        element.dataset[key] = `${val}`;
+      });
+      r += element.outerHTML;
       return r;
     }, "");
     if (result.length) {
-      this.$dropdown.innerHTML = result;
-      this.$dropdown.style.display = "block";
+      if (this.$dropdown) {
+        this.$dropdown.innerHTML = result;
+        this.$dropdown.style.display = "block";
+      }
     } else {
-      this.$dropdown.style.display = "none";
+      if (this.$dropdown) {
+        this.$dropdown.style.display = "none";
+      }
     }
   }
   show() {
@@ -183,43 +196,62 @@ class AutoComplete {
     this.$dropdown = dropdown;
   }
   autoCompleteClick(event) {
-    const target = event.target.closest("li");
-    if (target) {
-      this.select(target.dataset);
-      this.cleanUp(false);
+    const li = event.target.closest("li");
+    if (!li) return;
+    const span = li.querySelector("span[data-idx]");
+    if (span) {
+      const val = span.innerHTML;
+      console.log("Span dataset:", span.dataset);
+      this.select({ value: val });
     }
+    this.cleanUp(false);
     event.stopPropagation();
     event.preventDefault();
   }
   highlightPreviousResult() {
-    var _a, _b;
+    var _a;
     const items = ((_a = this.$dropdown) == null ? void 0 : _a.querySelectorAll("li")) || [];
     const activeIndex = Array.from(items).findIndex((item) => item.classList.contains("active"));
     const newIndex = activeIndex === 0 ? items.length - 1 : activeIndex - 1;
     items.forEach((item) => item.classList.remove("active"));
-    (_b = items[newIndex]) == null ? void 0 : _b.classList.add("active");
+    if (items[newIndex]) {
+      items[newIndex].classList.add("active");
+    }
   }
   highlightNextResult() {
-    var _a, _b;
+    var _a;
     const items = ((_a = this.$dropdown) == null ? void 0 : _a.querySelectorAll("li")) || [];
     const activeIndex = Array.from(items).findIndex((item) => item.classList.contains("active"));
     const newIndex = activeIndex === items.length - 1 ? 0 : activeIndex + 1;
     items.forEach((item) => item.classList.remove("active"));
-    (_b = items[newIndex]) == null ? void 0 : _b.classList.add("active");
+    if (items[newIndex]) {
+      items[newIndex].classList.add("active");
+    }
   }
   select(item) {
     this.editor.focus();
-    const selection = this.editor.dom.select("span#autocomplete")[0];
-    this.editor.dom.remove(selection);
-    this.editor.execCommand("mceInsertContent", false, this.options.insert(item, this.options));
+    const autocompleteElement = this.editor.getBody().querySelector("#autocomplete");
+    if (!autocompleteElement) return;
+    this.editor.dom.remove(autocompleteElement);
+    this.options.insertFrom = "value";
+    console.log("item", item, this.options, this.options.insert);
+    const result = this.options.insert(item, this.options);
+    console.log("result", result);
+    this.editor.execCommand("mceInsertContent", false, result);
   }
   offset() {
-    const rtePosition = this.editor.getContainer().getBoundingClientRect();
-    const contentAreaPosition = this.editor.getContentAreaContainer().getBoundingClientRect();
-    const nodePosition = this.editor.dom.select("span#autocomplete")[0].getBoundingClientRect();
+    var _a, _b;
+    const autocompleteElement = this.editor.getBody().querySelector("#autocomplete");
+    if (!autocompleteElement) {
+      return { top: 0, left: 0 };
+    }
+    const rect = autocompleteElement.getBoundingClientRect();
+    const editorDoc = this.editor.getDoc();
+    const scrollTop = ((_a = editorDoc == null ? void 0 : editorDoc.documentElement) == null ? void 0 : _a.scrollTop) || 0;
+    const scrollLeft = ((_b = editorDoc == null ? void 0 : editorDoc.documentElement) == null ? void 0 : _b.scrollLeft) || 0;
     return {
-      top: rtePosition.top + contentAreaPosition.top + nodePosition.top + this.editor.selection.getNode().offsetHeight - this.editor.getDoc().scrollTop + 5,
-      left: rtePosition.left + contentAreaPosition.left + nodePosition.left
+      top: rect.top + scrollTop + autocompleteElement.offsetHeight + 5,
+      left: rect.left + scrollLeft
     };
   }
   cleanUp(rollback) {
@@ -237,6 +269,9 @@ class AutoComplete {
       this.editor.dom.replace(replacement, selection);
       this.editor.selection.select(replacement);
       this.editor.selection.collapse();
+    } else {
+      console.log("mentionfinished");
+      this.editor.fire("mentionfinished");
     }
   }
   unbindEvents() {
@@ -244,6 +279,7 @@ class AutoComplete {
     this.editor.off("keyup", this.rteKeyUp.bind(this));
     this.editor.off("keydown", this.rteKeyDown.bind(this));
     this.editor.off("click", this.rteClicked.bind(this));
+    this.editor.getWin().removeEventListener("scroll", this.handleEditorScroll);
   }
 }
 const PLUGIN_NAME = "mention";
@@ -257,20 +293,36 @@ const getMetadata = () => {
 function registerPlugin(editor) {
   let autoComplete;
   const autoCompleteData = editor.getParam(PLUGIN_NAME);
-  const delimiter = autoCompleteData.delimiter ? Array.isArray(autoCompleteData.delimiter) ? autoCompleteData.delimiter : [autoCompleteData.delimiter] : ["@"];
+  const delimiter = Array.isArray(autoCompleteData.delimiter) ? autoCompleteData.delimiter : [autoCompleteData.delimiter || "@"];
   function prevCharIsSpace() {
-    var _a;
+    var _a, _b;
     const range = editor.selection.getRng();
     const start = range.startOffset;
-    const text = ((_a = range.startContainer) == null ? void 0 : _a.dataset) || "";
-    return !text.toString().charAt(start - 1).trim().length;
+    const text = (((_a = range.startContainer) == null ? void 0 : _a.textContent) || "").toString();
+    return !((_b = text.charAt(start - 1)) == null ? void 0 : _b.trim().length);
   }
   editor.on("keypress", (event) => {
-    if (delimiter.includes(event.key) && prevCharIsSpace() && (!autoComplete || !(autoComplete == null ? void 0 : autoComplete.hasFocus))) {
-      event.preventDefault();
-      console.log("activate mentions autocomplete", event.key, { delimiter }, autoComplete == null ? void 0 : autoComplete.hasFocus);
-      autoComplete = new AutoComplete(editor, __spreadProps(__spreadValues({}, autoCompleteData), { delimiter: event.key }));
+    if (!delimiter.includes(event.key)) {
+      console.log("not delimiter", event.key, { delimiter });
+      return;
     }
+    if (!prevCharIsSpace()) {
+      console.log("not prevCharIsSpace", event.key, { delimiter });
+      return;
+    }
+    if (autoComplete && autoComplete.hasFocus) {
+      console.log("not autoComplete", event.key, { delimiter }, autoComplete.hasFocus);
+      return;
+    }
+    event.preventDefault();
+    console.log("activate mentions autocomplete", event.key, { delimiter }, autoComplete == null ? void 0 : autoComplete.hasFocus);
+    autoComplete = new AutoComplete(editor, __spreadProps(__spreadValues({}, autoCompleteData), {
+      delimiter: event.key
+    }));
+  });
+  editor.on("mentionfinished", () => {
+    console.log("mentionfinished plugin event");
+    autoComplete = void 0;
   });
   return { getMetadata };
 }
